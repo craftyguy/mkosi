@@ -127,6 +127,7 @@ jobs:
           - debian
           - fedora
           - opensuse
+          - postmarketos
           - ubuntu
         tools:
           - arch
@@ -134,6 +135,8 @@ jobs:
           - debian
           - fedora
           - opensuse
+          # apk-tools is not packaged in ubuntu
+          # - postmarketos
           - ubuntu
         runner:
           - ubuntu-24.04
