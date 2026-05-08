@@ -151,6 +151,13 @@ jobs:
             tools: opensuse
           - distro: ubuntu
             tools: opensuse
+          # apk-tools not packaged in ubuntu
+          - distro: postmarketos
+            tools: ubuntu
+          - distro: postmarketos
+            tools: debian
+          - distro: postmarketos
+            tools: centos
         include:
           # low rate limit on s390x/ppc64le/arm64 workers
           - distro: debian
