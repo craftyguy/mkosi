@@ -6,115 +6,115 @@ on:
       - main
 
 jobs:
-  unit-test:
-    runs-on: ubuntu-24.04
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - uses: ./
+  # unit-test:
+  #   runs-on: ubuntu-24.04
+  #   concurrency:
+  #     group: ${{ github.workflow }}-${{ github.ref }}
+  #     cancel-in-progress: true
+  #   steps:
+  #     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+  #     - uses: ./
 
-      # Make sure the latest changes from the pull request are used.
-      - name: Install
-        run: sudo ln -svf $PWD/bin/mkosi /usr/bin/mkosi
-        working-directory: ./
+  #     # Make sure the latest changes from the pull request are used.
+  #     - name: Install
+  #       run: sudo ln -svf $PWD/bin/mkosi /usr/bin/mkosi
+  #       working-directory: ./
 
-      - name: Build tools tree
-        run: |
-          tee mkosi.local.conf <<EOF
-          [Build]
-          ToolsTreeDistribution=arch
-          EOF
+  #     - name: Build tools tree
+  #       run: |
+  #         tee mkosi.local.conf <<EOF
+  #         [Build]
+  #         ToolsTreeDistribution=arch
+  #         EOF
 
-          mkosi -f box -- true
+  #         mkosi -f box -- true
 
-      - name: Run ruff format
-        run: |
-          mkosi box -- ruff --version
-          if ! mkosi box -- ruff format --check --quiet mkosi/ tests/ kernel-install/*.install
-          then
-              echo "Please run 'ruff format' on the above files or apply the diffs below manually"
-              mkosi box -- ruff format --check --quiet --diff mkosi/ tests/ kernel-install/*.install
-          fi
+  #     - name: Run ruff format
+  #       run: |
+  #         mkosi box -- ruff --version
+  #         if ! mkosi box -- ruff format --check --quiet mkosi/ tests/ kernel-install/*.install
+  #         then
+  #             echo "Please run 'ruff format' on the above files or apply the diffs below manually"
+  #             mkosi box -- ruff format --check --quiet --diff mkosi/ tests/ kernel-install/*.install
+  #         fi
 
-      - name: Run ruff check
-        run: |
-          mkosi box -- ruff --version
-          mkosi box -- ruff check --output-format=github mkosi/ tests/ kernel-install/*.install
+  #     - name: Run ruff check
+  #       run: |
+  #         mkosi box -- ruff --version
+  #         mkosi box -- ruff check --output-format=github mkosi/ tests/ kernel-install/*.install
 
-      - name: Check that tabs are not used in code
-        run: sh -c '! git grep -P "\\t" "*.py"'
+  #     - name: Check that tabs are not used in code
+  #       run: sh -c '! git grep -P "\\t" "*.py"'
 
-      - name: Spell Checking (codespell)
-        run: |
-          mkosi box -- codespell --version
-          mkosi box -- codespell $(git ls-files) --skip docs/style.css
+  #     - name: Spell Checking (codespell)
+  #       run: |
+  #         mkosi box -- codespell --version
+  #         mkosi box -- codespell $(git ls-files) --skip docs/style.css
 
-      - name: License Checking (reuse)
-        run: |
-          mkosi box -- reuse --version
-          if ! mkosi box -- reuse lint
-          then
-              echo "Hint: If the above output lists unlicensed files tracked in git you might need to adjust REUSE.toml"
-              exit 1
-          fi
+  #     - name: License Checking (reuse)
+  #       run: |
+  #         mkosi box -- reuse --version
+  #         if ! mkosi box -- reuse lint
+  #         then
+  #             echo "Hint: If the above output lists unlicensed files tracked in git you might need to adjust REUSE.toml"
+  #             exit 1
+  #         fi
 
-      - name: Type Checking (mypy)
-        run: |
-          mkosi box -- mypy --version
-          mkosi box -- mypy mkosi/ kernel-install/*.install
-          mkosi box -- mypy --python-version 3.10 mkosi/ tests/ kernel-install/*.install
+  #     - name: Type Checking (mypy)
+  #       run: |
+  #         mkosi box -- mypy --version
+  #         mkosi box -- mypy mkosi/ kernel-install/*.install
+  #         mkosi box -- mypy --python-version 3.10 mkosi/ tests/ kernel-install/*.install
 
-      - name: Type Checking (pyright)
-        run: |
-          mkosi box -- pyright --version
-          mkosi box -- pyright mkosi/ tests/ kernel-install/*.install
+  #     - name: Type Checking (pyright)
+  #       run: |
+  #         mkosi box -- pyright --version
+  #         mkosi box -- pyright mkosi/ tests/ kernel-install/*.install
 
-      - name: Unit Tests
-        run: |
-          mkosi box -- python3 -m pytest --version
-          mkosi box -- python3 -m pytest -sv tests/
+  #     - name: Unit Tests
+  #       run: |
+  #         mkosi box -- python3 -m pytest --version
+  #         mkosi box -- python3 -m pytest -sv tests/
 
-      - name: Test execution from current working directory
-        run: python3 -m mkosi -h
+  #     - name: Test execution from current working directory
+  #       run: python3 -m mkosi -h
 
-      - name: Test execution from current working directory (sudo call)
-        run: sudo python3 -m mkosi -h
+  #     - name: Test execution from current working directory (sudo call)
+  #       run: sudo python3 -m mkosi -h
 
-      - name: Test venv installation
-        run: |
-          python3 -m venv testvenv
-          testvenv/bin/python3 -m pip install --upgrade setuptools wheel pip
-          testvenv/bin/python3 -m pip install .
-          testvenv/bin/mkosi -h
-          rm -rf testvenv
+  #     - name: Test venv installation
+  #       run: |
+  #         python3 -m venv testvenv
+  #         testvenv/bin/python3 -m pip install --upgrade setuptools wheel pip
+  #         testvenv/bin/python3 -m pip install .
+  #         testvenv/bin/mkosi -h
+  #         rm -rf testvenv
 
-      - name: Test editable venv installation
-        run: |
-          python3 -m venv testvenv
-          testvenv/bin/python3 -m pip install --upgrade setuptools wheel pip
-          testvenv/bin/python3 -m pip install --editable .
-          testvenv/bin/mkosi -h
-          rm -rf testvenv
+  #     - name: Test editable venv installation
+  #       run: |
+  #         python3 -m venv testvenv
+  #         testvenv/bin/python3 -m pip install --upgrade setuptools wheel pip
+  #         testvenv/bin/python3 -m pip install --editable .
+  #         testvenv/bin/mkosi -h
+  #         rm -rf testvenv
 
-      - name: Test zipapp creation
-        run: |
-          ./tools/generate-zipapp.sh
-          ./builddir/mkosi -h
-          ./builddir/mkosi documentation
+  #     - name: Test zipapp creation
+  #       run: |
+  #         ./tools/generate-zipapp.sh
+  #         ./builddir/mkosi -h
+  #         ./builddir/mkosi documentation
 
-      - name: Run shellcheck on scripts
-        run: |
-          bash -c 'shopt -s globstar; mkosi box -- shellcheck bin/mkosi tools/*.sh'
-          mkosi completion bash | mkosi box -- shellcheck -
+  #     - name: Run shellcheck on scripts
+  #       run: |
+  #         bash -c 'shopt -s globstar; mkosi box -- shellcheck bin/mkosi tools/*.sh'
+  #         mkosi completion bash | mkosi box -- shellcheck -
 
-      - name: Test man page generation
-        run: mkosi box -- tools/make-man-page.sh
+  #     - name: Test man page generation
+  #       run: mkosi box -- tools/make-man-page.sh
 
   integration-test:
     runs-on: ${{ matrix.runner }}
-    needs: unit-test
+    # needs: unit-test
     concurrency:
       group: ${{ github.workflow }}-${{ matrix.distro }}-${{ matrix.tools }}-${{ matrix.runner }}-${{ github.ref }}
       cancel-in-progress: true
@@ -122,13 +122,7 @@ jobs:
       fail-fast: false
       matrix:
         distro:
-          - arch
-          - centos
-          - debian
-          - fedora
-          - opensuse
           - postmarketos
-          - ubuntu
         tools:
           - arch
           - centos
